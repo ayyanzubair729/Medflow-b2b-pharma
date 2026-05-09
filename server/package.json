@@ -1,0 +1,42 @@
+{
+  "name": "medflow-server",
+  "version": "1.0.0",
+  "description": "MedFlow B2B Pharma Portal - Backend API",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "migration:generate": "typeorm migration:generate src/migrations/migration -d src/config/data-source.js",
+    "migration:run": "typeorm migration:run -d src/config/data-source.js",
+    "migration:revert": "typeorm migration:revert -d src/config/data-source.js",
+    "seed:products": "node src/utils/seedProducts.js",
+    "test": "jest --forceExit --detectOpenHandles",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "passport": "^0.7.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "pg": "^8.12.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "setupFilesAfterFramework": []
+  }
+}
