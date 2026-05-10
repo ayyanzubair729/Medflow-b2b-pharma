@@ -9,15 +9,14 @@ const quoteRepo = () => AppDataSource.getRepository(QuoteRequestSchema);
 export const getDashboardSummary = async (req, res) => {
   try {
     const userId = req.user?.id;
-    const role = req.user?.role;
+    const role   = req.user?.role;
+
     if (!userId) {
-      res.status(401).json({ message: "Not authenticated." });
-      return;
+      return res.status(401).json({ message: "Not authenticated." });
     }
 
     const isSupplier = role === "supplier";
-    const isBuyer = role === "buyer";
-    const isAdmin = role === "admin";
+    const isBuyer    = role === "buyer";
 
     const orderWhere = isSupplier
       ? { supplier_id: userId }
@@ -33,6 +32,7 @@ export const getDashboardSummary = async (req, res) => {
     });
 
     const pendingOrderStatus = [OrderStatus.PLACED, OrderStatus.CONFIRMED];
+
     const pendingOrders = await orderRepo().count({
       where: isSupplier
         ? { supplier_id: userId, status: In(pendingOrderStatus) }
@@ -57,10 +57,10 @@ export const getDashboardSummary = async (req, res) => {
       .getRawOne();
 
     res.status(200).json({
-      recent_orders: recentOrders,
+      recent_orders:  recentOrders,
       pending_orders: pendingOrders,
       pending_quotes: pendingQuotes,
-      total_revenue: Number(revenueResult?.total || 0),
+      total_revenue:  Number(revenueResult?.total || 0),
       role,
     });
   } catch (error) {

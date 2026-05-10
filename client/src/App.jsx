@@ -12,7 +12,13 @@ import BuyerCart from "./pages/buyer/BuyerCart.jsx";
 import BuyerOrders from "./pages/buyer/BuyerOrders.jsx";
 import BuyerQuotes from "./pages/buyer/BuyerQuotes.jsx";
 import BuyerProductDetail from "./pages/buyer/BuyerProductDetail.jsx";
-import SupplierDashboard from "./pages/supplier/SupplierDashboard.jsx";
+import SupplierLayout   from "./components/layout/SupplierLayout.jsx";
+import SupplierOverview from "./pages/supplier/SupplierOverview.jsx";
+import SupplierCatalog  from "./pages/supplier/SupplierCatalog.jsx";
+import SupplierOrders   from "./pages/supplier/SupplierOrders.jsx";
+import SupplierQuotes   from "./pages/supplier/SupplierQuotes.jsx";
+import SupplierPayouts  from "./pages/supplier/SupplierPayouts.jsx";
+
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
 function App() {
@@ -35,7 +41,14 @@ function App() {
         </Route>
       </Route>
       <Route element={<RequireRole allowedRoles={["supplier"]} />}>
-        <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
+        <Route path="/supplier/dashboard" element={<SupplierLayout />}>
+          <Route index element={<SupplierOverview />} />
+          <Route path="overview" element={<SupplierOverview />} />
+          <Route path="catalog" element={<SupplierCatalog />} />
+          <Route path="orders" element={<SupplierOrders />} />
+          <Route path="quotes" element={<SupplierQuotes />} />
+          <Route path="payouts" element={<SupplierPayouts />} />
+        </Route>
       </Route>
       <Route element={<RequireRole allowedRoles={["admin"]} />}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
