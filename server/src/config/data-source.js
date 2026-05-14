@@ -9,6 +9,8 @@ import { OrderSchema } from "../entities/Order.js";
 import { OrderItemSchema } from "../entities/OrderItem.js";
 import { QuoteRequestSchema } from "../entities/QuoteRequest.js";
 import { CartItemSchema } from "../entities/CartItem.js";
+import { ReturnRequestSchema } from "../entities/ReturnRequest.js";
+import { StockAlertSchema } from "../entities/StockAlert.js";
 
 dotenv.config();
 
@@ -30,6 +32,8 @@ export const AppDataSource = new DataSource({
     OrderItemSchema,
     QuoteRequestSchema,
     CartItemSchema,
+    ReturnRequestSchema,
+    StockAlertSchema,
   ],
   migrations: ["src/migrations/*.js"],
   subscribers: [],

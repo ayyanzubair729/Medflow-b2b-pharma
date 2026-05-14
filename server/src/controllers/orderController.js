@@ -3,7 +3,7 @@ import { OrderSchema, OrderStatus } from "../entities/Order.js";
 import { OrderItemSchema } from "../entities/OrderItem.js";
 import { CartItemSchema } from "../entities/CartItem.js";
 import { ProductSchema } from "../entities/Product.js";
-
+import { orderStatusEmail } from "../utils/emailService.js";
 const orderRepo = (manager) => (manager || AppDataSource.manager).getRepository(OrderSchema);
 const orderItemRepo = (manager) => (manager || AppDataSource.manager).getRepository(OrderItemSchema);
 const cartRepo = (manager) => (manager || AppDataSource.manager).getRepository(CartItemSchema);
@@ -205,7 +205,8 @@ export const updateOrderStatus = async (req, res) => {
 
     order.status = status;
     await orderRepo().save(order);
-
+       const buyerEmail = order.buyer?.email;
+  if (buyerEmail) await orderStatusEmail(order, buyerEmail).catch(console.error);
     res.status(200).json(order);
   } catch (error) {
     console.error("Update order status error:", error);

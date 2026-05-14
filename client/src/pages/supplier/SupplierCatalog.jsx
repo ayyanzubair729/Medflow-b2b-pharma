@@ -25,7 +25,21 @@ export default function SupplierCatalog() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, []);
+useEffect(() => {
+  let cancelled = false;
+  (async () => {
+    setLoading(true);
+    try {
+      const data = await listMyProducts(); // or listSupplierOrders / listSupplierQuotes
+      if (!cancelled) setProducts(data || []);
+    } catch {
+      if (!cancelled) flash("Unable to load.");
+    } finally {
+      if (!cancelled) setLoading(false);
+    }
+  })();
+  return () => { cancelled = true; };
+}, []);
 
   const toggleVisibility = async (product) => {
     try {

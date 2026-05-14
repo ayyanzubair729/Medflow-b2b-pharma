@@ -17,6 +17,8 @@ const NAV = [
   { to: "/supplier/dashboard/orders",    icon: "ti-shopping-cart",    label: "Orders" },
   { to: "/supplier/dashboard/quotes",    icon: "ti-messages",         label: "Quotes" },
   { to: "/supplier/dashboard/payouts",   icon: "ti-coin",             label: "Payouts" },
+  { to: "/supplier/dashboard/returns",   icon: "ti-arrow-back-up",    label: "Returns" },
+  { to: "/supplier/dashboard/alerts",    icon: "ti-bell",             label: "Alerts" },
 ];
 
 export default function SupplierLayout() {

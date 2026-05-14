@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "../../components/ui/Card.jsx";
 import Button from "../../components/ui/Button.jsx";
-import { listSupplierOrders, updateOrderStatus } from "../../api/suppliers.js";
+import { listSupplierOrders, advanceOrderStatus } from "../../api/suppliers.js";
 import { formatCurrency } from "../../utils/pricing.js";
 
 const STATUS_FLOW = ["placed", "confirmed", "shipped", "delivered"];
@@ -14,37 +14,86 @@ const STATUS_BADGE = {
 };
 
 export default function SupplierOrders() {
-  const [orders, setOrders]   = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [notice, setNotice]   = useState(null);
-  const [filter, setFilter]   = useState("all");
+  const [orders, setOrders]     = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [notice, setNotice]     = useState(null);
+  const [filter, setFilter]     = useState("all");
+  const [searchBuyer, setSearchBuyer] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo]     = useState("");
 
-  const flash = (msg) => { setNotice(msg); setTimeout(() => setNotice(null), 3500); };
+  const flash = (msg) => { 
+    setNotice(msg); 
+    setTimeout(() => setNotice(null), 3500); 
+  };
 
-  const load = useCallback(async () => {
+  const load = async () => {
     setLoading(true);
-    try { setOrders(await listSupplierOrders() || []); }
-    catch { setNotice("Unable to load orders."); }
-    finally { setLoading(false); }
-  }, []);
+    try { 
+      const data = await listSupplierOrders();
+      setOrders(data || []); 
+    }
+    catch { 
+      flash("Unable to load orders."); 
+    }
+    finally { 
+      setLoading(false); 
+    }
+  };
 
   useEffect(() => {
-    const timer = setTimeout(() => { void load(); }, 0);
-    return () => clearTimeout(timer);
-  }, [load]);
+    let cancelled = false;
+    
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        const data = await listSupplierOrders();
+        if (!cancelled) {
+          setOrders(data || []);
+        }
+      } catch {
+        if (!cancelled) {
+          flash("Unable to load orders.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchOrders();
+    
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const advance = async (order) => {
     const idx = STATUS_FLOW.indexOf(order.status);
     if (idx === -1 || idx >= STATUS_FLOW.length - 1) return;
-    const next = STATUS_FLOW[idx + 1];
     try {
-      await updateOrderStatus(order.id, next);
-      flash(`Order moved to "${next}".`);
+      await advanceOrderStatus(order.id);
+      flash(`Order advanced to "${STATUS_FLOW[idx + 1]}".`);
       load();
-    } catch (e) { flash(e.message); }
+    } catch (e) { 
+      flash(e.message); 
+    }
   };
 
-  const shown = filter === "all" ? orders : orders.filter((o) => o.status === filter);
+  // Apply filters
+  const filtered = orders.filter(o => {
+    if (searchBuyer && !o.buyer?.business_name?.toLowerCase().includes(searchBuyer.toLowerCase())) return false;
+    if (dateFrom && new Date(o.placed_at) < new Date(dateFrom)) return false;
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59);
+      if (new Date(o.placed_at) > toDate) return false;
+    }
+    return true;
+  });
+
+  const shown = filter === "all" ? filtered : filtered.filter((o) => o.status === filter);
 
   return (
     <div className="space-y-6">
@@ -53,7 +102,30 @@ export default function SupplierOrders() {
         <p className="text-sm text-slate-400">Review incoming orders and manage fulfilment.</p>
       </div>
 
-      {/* Filter tabs */}
+      {/* Search and date filters */}
+      <div className="flex flex-wrap gap-3">
+        <input
+          type="text"
+          placeholder="Search buyer..."
+          value={searchBuyer}
+          onChange={(e) => setSearchBuyer(e.target.value)}
+          className="rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-1.5 text-sm text-slate-100 outline-none focus:border-secondary"
+        />
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          className="rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-1.5 text-sm text-slate-100 outline-none focus:border-secondary"
+        />
+        <input
+          type="date"
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          className="rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-1.5 text-sm text-slate-100 outline-none focus:border-secondary"
+        />
+      </div>
+
+      {/* Status filter tabs */}
       <div className="flex flex-wrap gap-2">
         {["all", ...STATUS_FLOW, "cancelled"].map((s) => (
           <button
@@ -63,7 +135,8 @@ export default function SupplierOrders() {
               filter === s
                 ? "border-secondary bg-secondary/15 text-secondary"
                 : "border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200"
-            }`}>
+            }`}
+          >
             {s}
           </button>
         ))}
@@ -80,18 +153,23 @@ export default function SupplierOrders() {
           {[...Array(3)].map((_, i) => <div key={i} className="h-32 animate-pulse rounded-2xl bg-slate-800/60" />)}
         </div>
       ) : shown.length === 0 ? (
-        <Card className="p-6 text-sm text-slate-400">No orders in this status.</Card>
+        <Card className="p-6 text-sm text-slate-400">No orders match your filters.</Card>
       ) : (
         <div className="space-y-4">
           {shown.map((o) => {
             const nextIdx = STATUS_FLOW.indexOf(o.status);
-            const canAdvance = nextIdx !== -1 && nextIdx < STATUS_FLOW.length - 1;
+            const nextStatus = nextIdx !== -1 && nextIdx < STATUS_FLOW.length - 1 
+              ? STATUS_FLOW[nextIdx + 1] 
+              : null;
             return (
               <Card key={o.id} className="p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-xs text-slate-500">Order ID</p>
                     <p className="mt-0.5 font-mono text-xs text-slate-300">{o.id}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Buyer: {o.buyer?.business_name || o.buyer?.email || "Unknown"}
+                    </p>
                     <p className="mt-1 text-xs text-slate-500">
                       Placed: {o.placed_at ? new Date(o.placed_at).toLocaleDateString() : "—"}
                     </p>
@@ -120,10 +198,10 @@ export default function SupplierOrders() {
                   </p>
                 )}
 
-                {canAdvance && (
+                {nextStatus && (
                   <div className="mt-4 flex justify-end">
                     <Button className="px-4 py-1.5 text-xs" onClick={() => advance(o)}>
-                      Mark as {STATUS_FLOW[nextIdx + 1]}
+                      Mark as {nextStatus}
                     </Button>
                   </div>
                 )}

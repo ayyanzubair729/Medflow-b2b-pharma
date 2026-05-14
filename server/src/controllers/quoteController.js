@@ -1,6 +1,7 @@
 import { AppDataSource } from "../config/data-source.js";
 import { QuoteRequestSchema, QuoteStatus } from "../entities/QuoteRequest.js";
 import { ProductSchema } from "../entities/Product.js";
+import { quoteResponseEmail } from "../utils/emailService.js";
 
 const quoteRepo = () => AppDataSource.getRepository(QuoteRequestSchema);
 const productRepo = () => AppDataSource.getRepository(ProductSchema);
@@ -126,6 +127,7 @@ export const respondToQuote = async (req, res) => {
 
     const quote = await quoteRepo().findOne({
       where: { id: req.params.id },
+      relations: ["product", "buyer", "supplier"],
     });
     if (!quote) {
       res.status(404).json({ message: "Quote request not found." });
@@ -158,6 +160,14 @@ export const respondToQuote = async (req, res) => {
 
     quote.status = status;
     await quoteRepo().save(quote);
+
+    // Send email notification to buyer
+    const buyerEmail = quote.buyer?.email;
+    if (buyerEmail) {
+      quoteResponseEmail(quote, buyerEmail).catch(err => 
+        console.error("Failed to send quote response email:", err)
+      );
+    }
 
     res.status(200).json(quote);
   } catch (error) {

@@ -16,6 +16,9 @@ import reorderRoutes from "./routes/reorderRoutes.js";
 import supplierRoutes from "./routes/supplierRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import supplierDirectoryRoutes from "./routes/supplierDirectoryRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import rmaRoutes from "./routes/rmaRoutes.js";
+import payoutRoutes from "./routes/payoutRoutes.js";
 
 dotenv.config();
 
@@ -47,6 +50,9 @@ app.use("/api/reorder", reorderRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/suppliers", supplierDirectoryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/rma", rmaRoutes);
+app.use("/api/payouts", payoutRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ message: "Route not found." });
