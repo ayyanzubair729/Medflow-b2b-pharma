@@ -72,7 +72,7 @@ export class InitialSchema1777446000000 {
           "description" text,
           "icon_url" character varying,
           "is_active" boolean NOT NULL DEFAULT true,
-          "parent_id" character varying,
+          "parent_id" uuid,
           "created_at" timestamp NOT NULL DEFAULT now(),
           "updated_at" timestamp NOT NULL DEFAULT now(),
           CONSTRAINT "PK_categories" PRIMARY KEY ("id"),
@@ -86,11 +86,11 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "products" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "supplier_id" character varying NOT NULL,
-          "category_id" character varying NOT NULL,
-          "name" character varying NOT NULL,
-          "description" text,
-          "sku" character varying NOT NULL,
+          "supplier_id" uuid NOT NULL,
+        "category_id" uuid NOT NULL,
+        "name" character varying NOT NULL,
+        "description" text,
+        "sku" character varying NOT NULL,
           "unit" "public"."products_unit_enum" NOT NULL DEFAULT 'box',
           "stock_quantity" integer NOT NULL DEFAULT 0,
           "stock_status" "public"."products_stock_status_enum" NOT NULL DEFAULT 'in_stock',
@@ -108,8 +108,8 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "price_tiers" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "product_id" character varying NOT NULL,
-          "min_quantity" integer NOT NULL,
+        "product_id" uuid NOT NULL,
+        "min_quantity" integer NOT NULL,
           "max_quantity" integer,
           "price_per_unit" numeric(10,2) NOT NULL,
           CONSTRAINT "PK_price_tiers" PRIMARY KEY ("id")
@@ -121,9 +121,9 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "orders" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "buyer_id" character varying NOT NULL,
-          "supplier_id" character varying NOT NULL,
-          "status" "public"."orders_status_enum" NOT NULL DEFAULT 'placed',
+        "buyer_id" uuid NOT NULL,
+        "supplier_id" uuid NOT NULL,
+        "status" "public"."orders_status_enum" NOT NULL DEFAULT 'placed',
           "total_amount" numeric(10,2) NOT NULL,
           "delivery_address" text,
           "notes" text,
@@ -138,8 +138,8 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "order_items" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "order_id" character varying NOT NULL,
-          "product_id" character varying NOT NULL,
+        "order_id" uuid NOT NULL,
+        "product_id" uuid NOT NULL,
           "quantity" integer NOT NULL,
           "unit_price" numeric(10,2) NOT NULL,
           "subtotal" numeric(10,2) NOT NULL,
@@ -152,8 +152,8 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "cart_items" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "buyer_id" character varying NOT NULL,
-          "product_id" character varying NOT NULL,
+        "buyer_id" uuid NOT NULL,
+        "product_id" uuid NOT NULL,
           "quantity" integer NOT NULL,
           "added_at" timestamp NOT NULL DEFAULT now(),
           CONSTRAINT "PK_cart_items" PRIMARY KEY ("id")
@@ -165,9 +165,9 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "quote_requests" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "buyer_id" character varying NOT NULL,
-          "supplier_id" character varying NOT NULL,
-          "product_id" character varying NOT NULL,
+        "buyer_id" uuid NOT NULL,
+        "supplier_id" uuid NOT NULL,
+        "product_id" uuid NOT NULL,
           "quantity_requested" integer NOT NULL,
           "message" text,
           "status" "public"."quote_requests_status_enum" NOT NULL DEFAULT 'pending',
@@ -184,9 +184,9 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "return_requests" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "order_id" character varying NOT NULL,
-          "buyer_id" character varying NOT NULL,
-          "supplier_id" character varying NOT NULL,
+        "order_id" uuid NOT NULL,
+        "buyer_id" uuid NOT NULL,
+        "supplier_id" uuid NOT NULL,
           "reason" text NOT NULL,
           "status" "public"."return_requests_status_enum" NOT NULL DEFAULT 'pending',
           "created_at" timestamp NOT NULL DEFAULT now(),
@@ -200,8 +200,8 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "stock_alerts" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "supplier_id" character varying NOT NULL,
-          "product_id" character varying NOT NULL,
+        "supplier_id" uuid NOT NULL,
+        "product_id" uuid NOT NULL,
           "threshold" integer NOT NULL,
           "triggered" boolean NOT NULL DEFAULT false,
           "created_at" timestamp NOT NULL DEFAULT now(),
