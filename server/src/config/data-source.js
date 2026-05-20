@@ -25,9 +25,9 @@ export const AppDataSource = new DataSource({
         password: process.env.DB_PASSWORD || "",
         database: process.env.DB_NAME || "medflow_db",
       }),
-  connectTimeoutMS: 5000,
+  connectTimeoutMS: 10000,
   extra: {
-    connectionTimeoutMillis: 5000,
+    connectionTimeoutMillis: 10000,
   },
   ssl: process.env.DATABASE_URL
     ? { rejectUnauthorized: false }
