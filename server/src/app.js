@@ -26,17 +26,9 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",").map(s => s.trim());
-
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(null, allowedOrigins[0] || "http://localhost:5173");
-      }
-    },
+    origin: true,
     credentials: true,
   })
 );
