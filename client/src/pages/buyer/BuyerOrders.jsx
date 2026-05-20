@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button.jsx";
 import Card from "../../components/ui/Card.jsx";
-import { cancelOrder, listOrders, reorderFromOrder } from "../../api/orders.js";
+import { cancelOrder, listOrders, reorderFromOrder, downloadInvoicePdf } from "../../api/orders.js";
 import { formatCurrency } from "../../utils/pricing.js";
 
 const cancellable = new Set(["draft", "placed", "confirmed"]);
@@ -48,6 +48,22 @@ export default function BuyerOrders() {
       navigate("/buyer/cart");
     } catch (err) {
       setNotice(err.message || "Unable to reorder.");
+    }
+  };
+
+  const handleDownloadInvoice = async (orderId) => {
+    try {
+      const blob = await downloadInvoicePdf(orderId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setNotice(err.message || "Unable to download invoice.");
     }
   };
 
@@ -110,6 +126,11 @@ export default function BuyerOrders() {
                   <Button variant="outline" className="px-4" onClick={() => handleReorder(order.id)}>
                     Reorder
                   </Button>
+                  {order.status === "delivered" && (
+                    <Button variant="outline" className="px-4" onClick={() => handleDownloadInvoice(order.id)}>
+                      Invoice
+                    </Button>
+                  )}
                   {cancellable.has(order.status) && (
                     <Button variant="outline" className="px-4" onClick={() => handleCancel(order.id)}>
                       Cancel order

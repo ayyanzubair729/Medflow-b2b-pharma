@@ -4,6 +4,7 @@ import { OrderItemSchema } from "../entities/OrderItem.js";
 import { CartItemSchema } from "../entities/CartItem.js";
 import { ProductSchema } from "../entities/Product.js";
 import { orderStatusEmail } from "../utils/emailService.js";
+import { generateInvoicePDF } from "../utils/invoiceGenerator.js";
 const orderRepo = (manager) => (manager || AppDataSource.manager).getRepository(OrderSchema);
 const orderItemRepo = (manager) => (manager || AppDataSource.manager).getRepository(OrderItemSchema);
 const cartRepo = (manager) => (manager || AppDataSource.manager).getRepository(CartItemSchema);
@@ -245,5 +246,34 @@ export const cancelOrder = async (req, res) => {
   } catch (error) {
     console.error("Cancel order error:", error);
     res.status(500).json({ message: "Server error cancelling order." });
+  }
+};
+
+export const downloadInvoice = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ message: "Not authenticated." });
+
+    const order = await orderRepo().findOne({
+      where: { id: req.params.id },
+      relations: ["buyer", "items", "items.product", "supplier"],
+    });
+
+    if (!order) return res.status(404).json({ message: "Invoice not found." });
+
+    const isBuyer = order.buyer_id === userId;
+    const isSupplier = order.supplier_id === userId;
+    const isAdmin = req.user?.role === "admin";
+    if (!isBuyer && !isSupplier && !isAdmin) {
+      return res.status(403).json({ message: "Not authorized." });
+    }
+
+    const pdfBuffer = await generateInvoicePDF(order);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.id}.pdf`);
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error("Download invoice error:", error);
+    res.status(500).json({ message: "Server error." });
   }
 };

@@ -74,6 +74,7 @@ export const register = async (req, res) => {
         role: user.role,
         business_name: user.business_name,
         is_verified: user.is_verified,
+        avatar_url: user.avatar_url || null,
       },
     });
   } catch (error) {
@@ -124,6 +125,7 @@ export const login = async (req, res) => {
         role: user.role,
         business_name: user.business_name,
         is_verified: user.is_verified,
+        avatar_url: user.avatar_url || null,
       },
     });
   } catch (error) {
@@ -155,6 +157,7 @@ export const getMe = async (req, res) => {
       phone: user.phone,
       address: user.address,
       is_verified: user.is_verified,
+      avatar_url: user.avatar_url || null,
       created_at: user.created_at,
     });
   } catch (error) {
@@ -176,11 +179,12 @@ export const updateMe = async (req, res) => {
       return;
     }
 
-    const { business_name, phone, address } = req.body;
+    const { business_name, phone, address, avatar_url } = req.body;
 
-    if (business_name) user.business_name = business_name;
-    if (phone) user.phone = phone;
-    if (address) user.address = address;
+    if (business_name !== undefined) user.business_name = business_name;
+    if (phone !== undefined) user.phone = phone;
+    if (address !== undefined) user.address = address;
+    if (avatar_url !== undefined) user.avatar_url = avatar_url;
 
     await userRepo().save(user);
 

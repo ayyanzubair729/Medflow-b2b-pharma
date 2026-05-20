@@ -1,4 +1,4 @@
-import { apiFetch } from "./client.js";
+import { apiFetch, apiFetchBlob } from "./client.js";
 
 export const listOrders = async () => apiFetch("/api/orders");
 
@@ -17,3 +17,6 @@ export const reorderFromOrder = async (id) =>
   apiFetch(`/api/reorder/orders/${id}`, {
     method: "POST",
   });
+
+export const downloadInvoicePdf = async (orderId) =>
+  apiFetchBlob(`/api/orders/${orderId}/invoice`);

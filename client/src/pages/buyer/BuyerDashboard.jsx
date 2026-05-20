@@ -4,7 +4,7 @@ import Button from "../../components/ui/Button.jsx";
 import Card from "../../components/ui/Card.jsx";
 import { getDashboardSummary } from "../../api/dashboard.js";
 import { listProducts } from "../../api/products.js";
-import { reorderFromOrder } from "../../api/orders.js";
+import { reorderFromOrder, downloadInvoicePdf } from "../../api/orders.js";
 import { getProductImage } from "../../utils/assetMaps.js";
 import { formatCurrency } from "../../utils/pricing.js";
 import medicinesBg from "../../assets/medicines.jpg";
@@ -80,6 +80,22 @@ export default function BuyerDashboard() {
       navigate("/buyer/cart");
     } catch (err) {
       setNotice(err.message || "Unable to reorder.");
+    }
+  };
+
+  const handleDownloadInvoice = async (orderId) => {
+    try {
+      const blob = await downloadInvoicePdf(orderId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setNotice(err.message || "Unable to download invoice.");
     }
   };
 
@@ -175,9 +191,16 @@ export default function BuyerDashboard() {
                   <div className="text-sm text-slate-300">
                     {formatCurrency(order.total_amount)}
                   </div>
-                  <Button variant="outline" className="px-4" onClick={() => handleReorder(order.id)}>
-                    Reorder
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="px-3 text-xs" onClick={() => handleReorder(order.id)}>
+                      Reorder
+                    </Button>
+                    {order.status === "delivered" && (
+                      <Button variant="outline" className="px-3 text-xs" onClick={() => handleDownloadInvoice(order.id)}>
+                        Invoice
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))
             )}

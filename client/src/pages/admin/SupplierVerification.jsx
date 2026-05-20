@@ -1,22 +1,32 @@
 import { useEffect, useState } from "react";
 import Button from "../../components/ui/Button.jsx";
 import Card from "../../components/ui/Card.jsx";
-import { apiFetch } from "../../api/client.js";
+import {
+  listSuppliersAdmin,
+  verifySupplierAdmin,
+  rejectSupplierAdmin,
+} from "../../api/admin.js";
 
 export default function SupplierVerification() {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
+  const [status, setStatus] = useState("pending");
+  const [search, setSearch] = useState("");
+  const [refreshToken, setRefreshToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    
+
     const fetchSuppliers = async () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await apiFetch("/api/admin/suppliers/pending");
+        const data = await listSuppliersAdmin({
+          status,
+          search: search || undefined,
+        });
         if (!cancelled) {
           setSuppliers(data || []);
         }
@@ -32,16 +42,16 @@ export default function SupplierVerification() {
     };
 
     fetchSuppliers();
-    
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [status, search, refreshToken]);
 
   const handleVerify = async (id) => {
     setActionLoading(id);
     try {
-      await apiFetch(`/api/admin/suppliers/${id}/verify`, { method: "PATCH" });
+      await verifySupplierAdmin(id);
       setSuppliers(prev => prev.filter(s => s.id !== id));
     } catch (err) {
       setError(err.message);
@@ -53,7 +63,7 @@ export default function SupplierVerification() {
   const handleReject = async (id) => {
     setActionLoading(id);
     try {
-      await apiFetch(`/api/admin/suppliers/${id}/reject`, { method: "PATCH" });
+      await rejectSupplierAdmin(id);
       setSuppliers(prev => prev.filter(s => s.id !== id));
     } catch (err) {
       setError(err.message);
@@ -62,25 +72,45 @@ export default function SupplierVerification() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-slate-100">Supplier Verification</h2>
-        <div className="space-y-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-2xl bg-slate-800/60" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-slate-100">Supplier Verification</h2>
-        <p className="text-sm text-slate-400">Review and approve new supplier registrations.</p>
+        <p className="text-sm text-slate-400">Review supplier onboarding and status.</p>
       </div>
+
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          {[
+            { label: "Pending", value: "pending" },
+            { label: "Verified", value: "verified" },
+            { label: "Inactive", value: "inactive" },
+            { label: "All", value: "all" },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setStatus(tab.value)}
+              className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                status === tab.value
+                  ? "border-secondary bg-secondary/15 text-secondary"
+                  : "border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+          <input
+            type="text"
+            placeholder="Search suppliers"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="min-w-[200px] rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-secondary"
+          />
+          <Button className="px-4 py-2 text-xs" onClick={() => setRefreshToken((v) => v + 1)}>
+            Refresh
+          </Button>
+        </div>
+      </Card>
 
       {error && (
         <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
@@ -88,10 +118,16 @@ export default function SupplierVerification() {
         </div>
       )}
 
-      {suppliers.length === 0 ? (
+      {loading ? (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-2xl bg-slate-800/60" />
+          ))}
+        </div>
+      ) : suppliers.length === 0 ? (
         <Card className="p-6 text-center text-sm text-slate-400">
           <i className="ti ti-checkbox text-3xl text-slate-600 block mb-2" aria-hidden="true" />
-          No pending supplier verifications
+          No suppliers found
         </Card>
       ) : (
         <div className="space-y-3">
@@ -109,21 +145,30 @@ export default function SupplierVerification() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Button 
-                    className="px-4 py-2 text-xs" 
-                    onClick={() => handleVerify(s.id)}
-                    disabled={actionLoading === s.id}
-                  >
-                    {actionLoading === s.id ? "Processing..." : "Verify"}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="px-4 py-2 text-xs text-rose-400 hover:border-rose-500" 
-                    onClick={() => handleReject(s.id)}
-                    disabled={actionLoading === s.id}
-                  >
-                    Reject
-                  </Button>
+                  {status === "pending" && (
+                    <>
+                      <Button 
+                        className="px-4 py-2 text-xs" 
+                        onClick={() => handleVerify(s.id)}
+                        disabled={actionLoading === s.id}
+                      >
+                        {actionLoading === s.id ? "Processing..." : "Verify"}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="px-4 py-2 text-xs text-rose-400 hover:border-rose-500" 
+                        onClick={() => handleReject(s.id)}
+                        disabled={actionLoading === s.id}
+                      >
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                  {status !== "pending" && (
+                    <span className={`rounded-full border px-3 py-1 text-xs ${s.is_verified ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" : "border-slate-700 text-slate-400"}`}>
+                      {s.is_active ? (s.is_verified ? "verified" : "unverified") : "inactive"}
+                    </span>
+                  )}
                 </div>
               </div>
             </Card>

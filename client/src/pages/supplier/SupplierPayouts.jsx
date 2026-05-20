@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Card from "../../components/ui/Card.jsx";
-import { apiFetch } from "../../api/client.js";
+import Button from "../../components/ui/Button.jsx";
+import { apiFetch, apiFetchBlob } from "../../api/client.js";
 import { formatCurrency } from "../../utils/pricing.js";
 
 export default function SupplierPayouts() {
@@ -21,6 +22,22 @@ export default function SupplierPayouts() {
     };
     fetchInvoices();
   }, []);
+
+  const downloadInvoice = async (invoiceId) => {
+    try {
+      const blob = await apiFetchBlob(`/api/payouts/invoices/${invoiceId}/pdf`);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice-${invoiceId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err.message || "Unable to download invoice.");
+    }
+  };
 
   if (loading) {
     return (
@@ -90,6 +107,13 @@ export default function SupplierPayouts() {
                   <p className="text-xs text-slate-400 mt-1">
                     {inv.items?.length || 0} items
                   </p>
+                  <Button
+                    variant="outline"
+                    className="mt-3 px-3 py-1.5 text-xs"
+                    onClick={() => downloadInvoice(inv.id)}
+                  >
+                    Download invoice
+                  </Button>
                 </div>
               </div>
 

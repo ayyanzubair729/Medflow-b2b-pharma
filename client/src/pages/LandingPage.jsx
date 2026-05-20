@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { Link } from "react-router-dom";
 import Button from "../components/ui/Button.jsx";
 import Card from "../components/ui/Card.jsx";
 import Section from "../components/ui/Section.jsx";
 import Navbar from "../components/layout/Navbar.jsx";
-import Footer from "../components/layout/Footer.jsx";
+
+const Footer = lazy(() => import("../components/layout/Footer.jsx"));
 import heroBanner from "../assets/hero banner.webp";
 import medicinesBg from "../assets/medicines.jpg";
 import offerTwo from "../assets/offer 2.jpg";
@@ -24,6 +26,10 @@ import video1 from "../assets/video1.mp4";
 import video2 from "../assets/video2.mp4";
 import video3 from "../assets/video3.mp4";
 import video4 from "../assets/video4.mp4";
+import insideVid1 from "../assets/inside med vid1.mp4";
+import insideVid2 from "../assets/inside med v2.mp4";
+import insideVid3 from "../assets/inside med vid3.mp4";
+
 
 const impactCards = [
   {
@@ -62,28 +68,30 @@ const therapeuticAreas = [
 ];
 
 const certifications = [
-  "WHO aligned quality checks",
-  "Good Manufacturing Practice (GMP)",
-  "Cold-chain certified logistics",
-  "ISO-aligned documentation workflows",
-  "Batch traceability and recall readiness",
+  "Drug Regulatory Authority of Pakistan (DRAP) licensed",
+  "ISO 9001:2015 Quality Management certified",
+  "Good Manufacturing Practice (GMP) compliant",
+  "Pakistan Customs — Authorized Economic Operator",
+  "Sindh Food Authority registered warehouse",
+  "PIC/S pharmaceutical inspection cooperation scheme",
+  "WHO pre-qualified supply chain partner",
 ];
 
 const insights = [
   {
-    title: "Inside MedFlow",
-    description: "Explore updates, research highlights, and supply chain insights.",
-    image: offerNewFour,
+    title: "Behind the scenes at MedFlow",
+    description: "A look inside our quality-controlled packaging facility and dispatch operations.",
+    video: insideVid1,
   },
   {
-    title: "Impact initiatives",
-    description: "Programs supporting healthcare access across underserved regions.",
-    image: offerNewTwo,
+    title: "Supply chain excellence",
+    description: "How we maintain cold-chain integrity from warehouse to last-mile delivery.",
+    video: insideVid2,
   },
   {
-    title: "News & events",
-    description: "Track partnerships, certifications, and product launches.",
-    image: offerTwo,
+    title: "Partner success stories",
+    description: "Hear from healthcare partners on how MedFlow transformed their procurement.",
+    video: insideVid3,
   },
 ];
 
@@ -97,6 +105,7 @@ export default function LandingPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeInsight, setActiveInsight] = useState(0);
+  const [applyForm, setApplyForm] = useState(null);
   const [statValues, setStatValues] = useState(stats.map(() => 0));
   const statsRef = useRef(null);
 
@@ -303,7 +312,7 @@ export default function LandingPage() {
         </Section>
       </div>
 
-      <div data-reveal className="reveal">
+      <div id="innovation" data-reveal className="reveal">
         <Section
           title="Innovation in therapeutic areas"
           subtitle="We manufacture and distribute medicines across critical care segments."
@@ -338,6 +347,80 @@ export default function LandingPage() {
                 </Card>
               ))}
             </div>
+          </div>
+        </Section>
+      </div>
+
+      <div id="about" data-reveal className="reveal">
+        <Section
+          title="About MedFlow"
+          subtitle="Pakistan's trusted B2B pharmaceutical procurement platform."
+        >
+          <div className="grid gap-8 lg:grid-cols-2">
+            <Card className="p-6">
+              <p className="text-sm leading-relaxed text-slate-300">
+                MedFlow was founded in 2021 with a singular mission: to bring transparency, efficiency, and trust to pharmaceutical procurement in Pakistan. We connect verified suppliers with licensed buyers — hospitals, pharmacies, clinics, and distributors — through a single digital platform.
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-slate-300">
+                Our team combines deep expertise in pharmaceutical supply chains, regulatory compliance, and enterprise technology. We are headquartered in Islamabad with regional hubs in Lahore and Karachi, serving over 8,000 healthcare partners across 45+ countries.
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-slate-300">
+                Every order on MedFlow is backed by batch-level traceability, real-time inventory data, and cold-chain certified logistics. We are a DRAP-licensed and ISO 9001:2015 certified platform, operating under the highest standards of pharmaceutical governance.
+              </p>
+            </Card>
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="p-5 text-center">
+                <p className="text-2xl font-bold text-secondary">8,000+</p>
+                <p className="mt-1 text-xs text-slate-400">Healthcare partners</p>
+              </Card>
+              <Card className="p-5 text-center">
+                <p className="text-2xl font-bold text-secondary">45+</p>
+                <p className="mt-1 text-xs text-slate-400">Countries served</p>
+              </Card>
+              <Card className="p-5 text-center">
+                <p className="text-2xl font-bold text-secondary">2,000+</p>
+                <p className="mt-1 text-xs text-slate-400">Monthly shipments</p>
+              </Card>
+              <Card className="p-5 text-center">
+                <p className="text-2xl font-bold text-secondary">99.8%</p>
+                <p className="mt-1 text-xs text-slate-400">On-time dispatch rate</p>
+              </Card>
+            </div>
+          </div>
+        </Section>
+      </div>
+
+      <div id="products" data-reveal className="reveal">
+        <Section
+          title="Our Product Range"
+          subtitle="Comprehensive pharmaceutical catalog covering major therapeutic segments."
+        >
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { name: "Analgesics & NSAIDs", desc: "Pain management solutions from paracetamol to prescription-grade analgesics.", count: "45+ formulations", img: painManagementIcon },
+              { name: "Antibiotics & Anti-infectives", desc: "Broad-spectrum and targeted antibiotics for hospital and retail use.", count: "60+ SKUs", img: antibioticsIcon },
+              { name: "Cardiovascular", desc: "Anti-hypertensives, statins, and anticoagulants for chronic care.", count: "35+ products", img: cardiologyIcon },
+              { name: "Diabetes Care", desc: "Insulin analogues, oral hypoglycemics, and monitoring accessories.", count: "28+ variants", img: diabetesIcon },
+              { name: "Dermatology", desc: "Topical steroids, antifungals, and emollients for clinical and OTC use.", count: "40+ SKUs", img: dermatologyIcon },
+              { name: "Respiratory", desc: "Inhalers, nebuliser solutions, and antihistamines for asthma and allergy.", count: "30+ products", img: respiratoryIcon },
+            ].map((prod) => (
+              <Card key={prod.name} className="overflow-hidden hover-lift">
+                    <div className="h-40 w-full">
+                  <img
+                    src={prod.img}
+                    alt={prod.name}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    fetchpriority="low"
+                  />
+                </div>
+                <div className="p-5">
+                  <h3 className="text-sm font-semibold text-slate-100">{prod.name}</h3>
+                  <p className="mt-2 text-xs text-slate-400">{prod.desc}</p>
+                  <p className="mt-3 text-xs font-semibold text-secondary">{prod.count}</p>
+                </div>
+              </Card>
+            ))}
           </div>
         </Section>
       </div>
@@ -430,7 +513,7 @@ export default function LandingPage() {
         </Section>
       </div>
 
-      <div data-reveal className="reveal">
+      <div id="certifications" data-reveal className="reveal">
         <Section title="Our certifications" subtitle="Global standards and ethical practices at every step.">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {certifications.map((item) => (
@@ -457,11 +540,14 @@ export default function LandingPage() {
                 <div key={card.title} className="w-full shrink-0 px-2">
                   <Card className="overflow-hidden hover-lift">
                     <div className="h-44 w-full">
-                      <img
-                        src={card.image}
-                        alt={card.title}
+                      <video
+                        src={card.video}
                         className="h-full w-full object-cover"
-                        loading="lazy"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
                       />
                     </div>
                     <div className="p-5">
@@ -492,6 +578,94 @@ export default function LandingPage() {
         </Section>
       </div>
 
+      <div id="careers" data-reveal className="reveal">
+        <Section
+          title="Careers at MedFlow"
+          subtitle="Join a team that's reshaping pharmaceutical distribution across Pakistan."
+        >
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: "Supply Chain Analyst", loc: "Karachi", type: "Full-time", tag: "Operations" },
+              { title: "Quality Assurance Officer", loc: "Lahore", type: "Full-time", tag: "QA" },
+              { title: "Regional Sales Manager", loc: "Islamabad", type: "Full-time", tag: "Sales" },
+              { title: "Product Manager — Pharma", loc: "Karachi", type: "Full-time", tag: "Product" },
+              { title: "Logistics Coordinator", loc: "Lahore", type: "Contract", tag: "Logistics" },
+              { title: "Regulatory Affairs Specialist", loc: "Remote", type: "Full-time", tag: "Regulatory" },
+            ].map((job) => (
+              <Card key={job.title} className="p-5 hover-lift">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-secondary/10 px-2.5 py-0.5 text-[10px] font-semibold text-secondary">{job.tag}</span>
+                  <span className="text-[10px] text-slate-500">{job.type}</span>
+                </div>
+                <h3 className="mt-3 text-sm font-semibold text-slate-100">{job.title}</h3>
+                <p className="mt-1 text-xs text-slate-400">{job.loc}</p>
+                <button onClick={() => setApplyForm(job)} className="mt-4 text-xs font-semibold text-secondary hover:text-accent">Apply now →</button>
+              </Card>
+            ))}
+          </div>
+        </Section>
+      </div>
+
+      <div id="contact" data-reveal className="reveal">
+        <Section
+          title="Contact Us"
+          subtitle="Get in touch with our team for partnerships, procurement, or support."
+        >
+          <div className="grid gap-8 lg:grid-cols-2">
+            <Card className="p-6 space-y-5">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-100">Send a message</h3>
+                <p className="text-xs text-slate-400">We typically reply within 24 hours.</p>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-400">Full Name</label>
+                <input type="text" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-secondary" placeholder="Your name" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-400">Email</label>
+                <input type="email" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-secondary" placeholder="you@company.com" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-400">Message</label>
+                <textarea rows={4} className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-secondary" placeholder="How can we help?" />
+              </div>
+              <Button className="w-full">Send Message</Button>
+            </Card>
+
+            <div className="space-y-4">
+              <Card className="flex items-start gap-4 p-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-lg">📍</span>
+                <div>
+                  <p className="text-sm font-semibold text-slate-100">Head Office</p>
+                  <p className="mt-1 text-xs text-slate-400">Blue Area, Islamabad, Pakistan</p>
+                </div>
+              </Card>
+              <Card className="flex items-start gap-4 p-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-lg">📞</span>
+                <div>
+                  <p className="text-sm font-semibold text-slate-100">Phone</p>
+                  <p className="mt-1 text-xs text-slate-400">+92 318 5411636</p>
+                </div>
+              </Card>
+              <Card className="flex items-start gap-4 p-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-lg">✉️</span>
+                <div>
+                  <p className="text-sm font-semibold text-slate-100">Email</p>
+                  <p className="mt-1 text-xs text-slate-400">partners@medflow.pk</p>
+                </div>
+              </Card>
+              <Card className="flex items-start gap-4 p-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-lg">🕐</span>
+                <div>
+                  <p className="text-sm font-semibold text-slate-100">Business Hours</p>
+                  <p className="mt-1 text-xs text-slate-400">Mon — Fri, 9:00 AM — 6:00 PM (PKT)</p>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </Section>
+      </div>
+
       <section className="py-16" data-reveal>
         <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-secondary to-accent px-6 py-10 text-white sm:px-10 hover-lift">
@@ -502,9 +676,11 @@ export default function LandingPage() {
                   Create your business account and unlock tiered pricing from verified suppliers.
                 </p>
               </div>
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                Register Now
-              </Button>
+              <Link to="/register">
+                <Button variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+                  Register Now
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -563,7 +739,59 @@ export default function LandingPage() {
         </div>
       )}
 
-      <Footer />
+      {applyForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+            aria-label="Close form"
+            onClick={() => setApplyForm(null)}
+          />
+          <div className="relative w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900/90 p-6 shadow-card">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
+                  Apply for
+                </p>
+                <h3 className="mt-1 text-lg font-semibold text-slate-100">{applyForm.title}</h3>
+                <p className="text-xs text-slate-400">{applyForm.loc} · {applyForm.type}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setApplyForm(null)}
+                className="text-slate-400 hover:text-slate-100"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-400">Full Name</label>
+                <input type="text" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-secondary" placeholder="Your name" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-400">Email</label>
+                <input type="email" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-secondary" placeholder="you@example.com" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-400">Resume / LinkedIn</label>
+                <input type="text" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-secondary" placeholder="Link to resume or LinkedIn profile" />
+              </div>
+              <Button className="w-full" onClick={() => setApplyForm(null)}>
+                Submit Application
+              </Button>
+            </div>
+            <p className="mt-4 text-xs text-slate-500">
+              We will review your application and get back to you within 5 business days.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <Suspense fallback={<div className="h-48 animate-pulse bg-slate-900/50" />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

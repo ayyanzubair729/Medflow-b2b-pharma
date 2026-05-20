@@ -59,6 +59,10 @@ export const UserSchema = new EntitySchema({
       type: "boolean",
       default: true,
     },
+    avatar_url: {
+      type: "varchar",
+      nullable: true,
+    },
     created_at: {
       type: "timestamp",
       createDate: true,

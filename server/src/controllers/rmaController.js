@@ -36,7 +36,7 @@ export const listReturns = async (req, res) => {
     const role = req.user?.role;
     if (!userId) return res.status(401).json({ message: "Not authenticated." });
 
-    const where = role === "supplier" ? { supplier_id: userId } : { buyer_id: userId };
+    const where = role === "admin" ? {} : role === "supplier" ? { supplier_id: userId } : { buyer_id: userId };
     const returns = await rmaRepo().find({ where, relations: ["order", "buyer", "supplier"] });
     res.json(returns);
   } catch (error) {

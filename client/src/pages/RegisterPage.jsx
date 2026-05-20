@@ -86,7 +86,7 @@ export default function RegisterPage() {
 
         <div className="relative mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
           <div className="w-full max-w-xl rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-card">
-              <div className="flex items-center gap-3">
+              <Link to="/" className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-slate-900">
                   <img src={logo} alt="MedFlow" className="h-full w-full object-cover" />
                 </div>
@@ -94,7 +94,7 @@ export default function RegisterPage() {
                   <p className="text-sm font-semibold text-slate-100">MedFlow</p>
                   <p className="text-xs text-slate-400">Business onboarding</p>
                 </div>
-              </div>
+              </Link>
 
               <h2 className="mt-6 text-2xl font-semibold text-slate-100">Sign up</h2>
               <p className="mt-2 text-sm text-slate-400">

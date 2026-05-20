@@ -16,11 +16,12 @@ export default function Navbar() {
         </div>
 
         <nav className="hidden flex-1 items-center justify-center gap-5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 lg:flex">
-          <Link to="/about" className="transition hover:text-slate-100">About</Link>
-          <Link to="/products" className="transition hover:text-slate-100">Products</Link>
-          <Link to="/innovation" className="transition hover:text-slate-100">Innovation</Link>
-          <Link to="/careers" className="transition hover:text-slate-100">Careers</Link>
-          <Link to="/contact" className="transition hover:text-slate-100">Contact Us</Link>
+          <a href="#about" className="transition hover:text-slate-100">About</a>
+          <a href="#products" className="transition hover:text-slate-100">Products</a>
+          <a href="#certifications" className="transition hover:text-slate-100">Certifications</a>
+          <a href="#innovation" className="transition hover:text-slate-100">Innovation</a>
+          <a href="#careers" className="transition hover:text-slate-100">Careers</a>
+          <a href="#contact" className="transition hover:text-slate-100">Contact Us</a>
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
@@ -46,11 +47,12 @@ export default function Navbar() {
       </div>
       <div className="mx-auto w-full max-w-6xl px-4 pb-4 sm:px-6 lg:hidden">
         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-          <Link to="/about" className="hover:text-slate-100">About</Link>
-          <Link to="/products" className="hover:text-slate-100">Products</Link>
-          <Link to="/innovation" className="hover:text-slate-100">Innovation</Link>
-          <Link to="/careers" className="hover:text-slate-100">Careers</Link>
-          <Link to="/contact" className="hover:text-slate-100">Contact</Link>
+          <a href="#about" className="hover:text-slate-100">About</a>
+          <a href="#products" className="hover:text-slate-100">Products</a>
+          <a href="#certifications" className="hover:text-slate-100">Certs</a>
+          <a href="#innovation" className="hover:text-slate-100">Innovation</a>
+          <a href="#careers" className="hover:text-slate-100">Careers</a>
+          <a href="#contact" className="hover:text-slate-100">Contact</a>
         </div>
       </div>
     </header>

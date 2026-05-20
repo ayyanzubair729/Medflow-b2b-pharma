@@ -19,6 +19,8 @@ import supplierDirectoryRoutes from "./routes/supplierDirectoryRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import rmaRoutes from "./routes/rmaRoutes.js";
 import payoutRoutes from "./routes/payoutRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
+import announcementRoutes from "./routes/announcementRoutes.js";
 
 dotenv.config();
 
@@ -53,6 +55,13 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/rma", rmaRoutes);
 app.use("/api/payouts", payoutRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/announcements", announcementRoutes);
+
+import { fileURLToPath } from "url";
+import path from "path";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 app.use((_req, res) => {
   res.status(404).json({ message: "Route not found." });

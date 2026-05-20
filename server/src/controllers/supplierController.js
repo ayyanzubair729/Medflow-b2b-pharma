@@ -1,8 +1,11 @@
 import { AppDataSource } from "../config/data-source.js";
-import { ProductSchema, StockStatus } from "../entities/Product.js";
+import { ProductSchema, StockStatus, ProductUnit } from "../entities/Product.js";
+import { PriceTierSchema } from "../entities/PriceTier.js";
 import { OrderSchema, OrderStatus } from "../entities/Order.js";
 import { orderStatusEmail } from "../utils/emailService.js";
+
 const productRepo = () => AppDataSource.getRepository(ProductSchema);
+const priceTierRepo = () => AppDataSource.getRepository(PriceTierSchema);
 const orderRepo = () => AppDataSource.getRepository(OrderSchema);
 
 export const listMyProducts = async (req, res) => {
