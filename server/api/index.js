@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import serverless from "serverless-http";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -10,17 +9,23 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 import { AppDataSource } from "../src/config/data-source.js";
 import app from "../src/app.js";
 
-let handler;
+let ready = false;
+let initErr = null;
 
-async function getHandler() {
-  if (!handler) {
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
+async function init() {
+  if (!ready) {
+    try {
+      if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+      }
+      ready = true;
+    } catch (e) {
+      initErr = e;
     }
-    handler = serverless(app);
   }
-  return handler;
 }
+
+init();
 
 export default async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -35,15 +40,16 @@ export default async function (req, res) {
   if (req.path === "/api/health") {
     res.setHeader("Content-Type", "application/json");
     res.statusCode = 200;
-    return res.end(JSON.stringify({ status: "ok", message: "MedFlow API is running." }));
+    return res.end(JSON.stringify({ status: "ok" }));
   }
 
-  try {
-    const h = await getHandler();
-    return h(req, res);
-  } catch (e) {
+  if (!ready) {
     res.setHeader("Content-Type", "application/json");
-    res.statusCode = 503;
-    return res.end(JSON.stringify({ message: "Initializing: " + e.message }));
+    res.statusCode = initErr ? 500 : 503;
+    return res.end(JSON.stringify({
+      message: initErr ? "DB init failed: " + initErr.message : "Initializing, try again"
+    }));
   }
+
+  app(req, res);
 }
