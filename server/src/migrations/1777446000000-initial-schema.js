@@ -86,7 +86,7 @@ export class InitialSchema1777446000000 {
       await queryRunner.query(`
         CREATE TABLE "products" (
           "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-          "supplier_id" character varying NOT NULL,
+          "supplier_id" uuid NOT NULL,
           "category_id" character varying NOT NULL,
           "name" character varying NOT NULL,
           "description" text,
