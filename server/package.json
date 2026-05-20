@@ -10,6 +10,7 @@
     "migration:generate": "typeorm migration:generate src/migrations/migration -d src/config/data-source.js",
     "migration:run": "typeorm migration:run -d src/config/data-source.js",
     "migration:revert": "typeorm migration:revert -d src/config/data-source.js",
+    "seed:users": "node src/utils/seedUsers.js",
     "seed:products": "node src/utils/seedProducts.js",
     "test": "jest --forceExit --detectOpenHandles",
     "test:watch": "jest --watch"
