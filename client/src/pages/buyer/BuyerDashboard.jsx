@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Button from "../../components/ui/Button.jsx";
 import Card from "../../components/ui/Card.jsx";
 import { getDashboardSummary } from "../../api/dashboard.js";
@@ -16,6 +17,7 @@ const getTopEntries = (map, limit = 3) =>
 
 export default function BuyerDashboard() {
   const navigate = useNavigate();
+  const { user } = useSelector((s) => s.auth);
   const [summary, setSummary] = useState(null);
   const [recommended, setRecommended] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -103,7 +105,9 @@ export default function BuyerDashboard() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">Buyer dashboard</h1>
+          <h1 className="text-2xl font-semibold text-slate-100">
+            Good to see you, {user?.business_name || "there"}
+          </h1>
           <p className="text-sm text-slate-400">Monitor orders, quotes, and spend at a glance.</p>
         </div>
         <Link to="/buyer/home" className="text-sm font-semibold text-secondary hover:text-accent">
