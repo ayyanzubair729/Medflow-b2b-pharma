@@ -3,17 +3,22 @@ import { AppDataSource } from "../src/config/data-source.js";
 import app from "../src/app.js";
 
 let handler;
+let initError;
 
 async function getHandler() {
-  if (!handler) {
+  if (initError) throw initError;
+  if (handler) return handler;
+
+  try {
     await AppDataSource.initialize();
     console.log("DB connected");
-    await AppDataSource.runMigrations();
-    console.log("Migrations done");
     const { default: serverless } = await import("serverless-http");
     handler = serverless(app);
+    return handler;
+  } catch (err) {
+    initError = err;
+    throw err;
   }
-  return handler;
 }
 
 function setCorsHeaders(res) {
@@ -31,6 +36,11 @@ export default async function (req, res) {
     return;
   }
 
-  const h = await getHandler();
-  return h(req, res);
+  try {
+    const h = await getHandler();
+    return h(req, res);
+  } catch (err) {
+    console.error("Handler error:", err);
+    res.status(500).json({ error: "Server initialization failed" });
+  }
 }
