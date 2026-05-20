@@ -3,23 +3,6 @@ import { AppDataSource } from "../src/config/data-source.js";
 import app from "../src/app.js";
 
 let handler;
-let initError;
-
-async function getHandler() {
-  if (initError) throw initError;
-  if (handler) return handler;
-
-  try {
-    await AppDataSource.initialize();
-    console.log("DB connected");
-    const { default: serverless } = await import("serverless-http");
-    handler = serverless(app);
-    return handler;
-  } catch (err) {
-    initError = err;
-    throw err;
-  }
-}
 
 function setCorsHeaders(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -36,11 +19,20 @@ export default async function (req, res) {
     return;
   }
 
+  if (req.url === "/api/health") {
+    res.status(200).json({ status: "ok", message: "MedFlow API is running." });
+    return;
+  }
+
   try {
-    const h = await getHandler();
-    return h(req, res);
+    if (!handler) {
+      await AppDataSource.initialize();
+      const { default: serverless } = await import("serverless-http");
+      handler = serverless(app);
+    }
+    return handler(req, res);
   } catch (err) {
-    console.error("Handler error:", err);
+    console.error("Init error:", err);
     res.status(500).json({ error: "Server initialization failed" });
   }
 }
