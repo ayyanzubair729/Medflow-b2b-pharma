@@ -1,7 +1,17 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "https://medflow-b2b-pharma-f24h.vercel.app").replace(
-  /\/$/,
-  ""
-);
+export const getApiBaseUrl = () => {
+  const envBase = import.meta.env.VITE_API_BASE_URL;
+  if (envBase) return envBase.replace(/\/$/, "");
+  if (typeof window !== "undefined") {
+    const { hostname, origin } = window.location;
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://localhost:3000";
+    }
+    return origin.replace(/\/$/, "");
+  }
+  return "http://localhost:3000";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const apiFetch = async (path, options = {}) => {
   let authHeader = {};

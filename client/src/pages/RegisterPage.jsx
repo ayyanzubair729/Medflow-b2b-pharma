@@ -6,6 +6,7 @@ import logo from "../assets/logo.png";
 import heroBanner from "../assets/hero banner.webp";
 import { registerUser } from "../store/slices/authSlice.js";
 import { getRoleRedirect } from "../utils/redirects.js";
+import { getApiBaseUrl } from "../api/client.js";
 
 export default function RegisterPage() {
   const dispatch = useDispatch();
@@ -23,10 +24,7 @@ export default function RegisterPage() {
   });
   const [formError, setFormError] = useState(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3000").replace(
-    /\/$/,
-    ""
-  );
+  const apiBaseUrl = getApiBaseUrl();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
