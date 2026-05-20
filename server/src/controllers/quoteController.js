@@ -139,7 +139,10 @@ export const respondToQuote = async (req, res) => {
       return;
     }
 
-    const status = normalizeStatus(req.body.status);
+    let status = normalizeStatus(req.body.status);
+    if (!status && req.body.quoted_price) {
+      status = QuoteStatus.RESPONDED;
+    }
     if (![QuoteStatus.RESPONDED, QuoteStatus.REJECTED].includes(status)) {
       res.status(400).json({ message: "Status must be responded or rejected." });
       return;
