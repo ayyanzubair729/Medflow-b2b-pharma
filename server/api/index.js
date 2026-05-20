@@ -9,23 +9,12 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 import { AppDataSource } from "../src/config/data-source.js";
 import app from "../src/app.js";
 
-let ready = false;
-let initErr = null;
-
-async function init() {
-  if (!ready) {
-    try {
-      if (!AppDataSource.isInitialized) {
-        await AppDataSource.initialize();
-      }
-      ready = true;
-    } catch (e) {
-      initErr = e;
-    }
-  }
-}
-
-init();
+const dbReady = AppDataSource.isInitialized
+  ? Promise.resolve()
+  : AppDataSource.initialize().catch((e) => {
+      console.error("DB init error:", e);
+      return Promise.reject(e);
+    });
 
 export default async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -43,12 +32,12 @@ export default async function (req, res) {
     return res.end(JSON.stringify({ status: "ok" }));
   }
 
-  if (!ready) {
+  try {
+    await dbReady;
+  } catch (e) {
     res.setHeader("Content-Type", "application/json");
-    res.statusCode = initErr ? 500 : 503;
-    return res.end(JSON.stringify({
-      message: initErr ? "DB init failed: " + initErr.message : "Initializing, try again"
-    }));
+    res.statusCode = 500;
+    return res.end(JSON.stringify({ message: "Database connection failed" }));
   }
 
   app(req, res);
