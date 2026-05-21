@@ -4,11 +4,64 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  color-scheme: light dark;
+}
+
+:root {
+  --bg: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --surface: #ffffff;
+  --panel: #f8fafc;
+  --border: #cbd5e1;
+}
+
+html.dark {
+  --bg: #0b1220;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --surface: #0f1720;
+  --panel: #071226;
+  --border: rgba(255,255,255,0.06);
+}
+
+html:not(.dark) {
+  color-scheme: light;
+}
+
 body {
   margin: 0;
   font-family: "Manrope", system-ui, sans-serif;
-  background-color: #0b1220;
-  color: #e5e7eb;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Light mode overrides for dark Tailwind utility classes */
+html:not(.dark) [class*="bg-slate-95"],
+html:not(.dark) [class*="bg-slate-90"] {
+  background-color: var(--surface) !important;
+}
+
+html:not(.dark) [class*="border-slate-9"],
+html:not(.dark) [class*="border-slate-8"],
+html:not(.dark) [class*="border-slate-7"] {
+  border-color: var(--border) !important;
+}
+
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200,
+html:not(.dark) .text-slate-300,
+html:not(.dark) [class*="text-slate-"] {
+  color: var(--text) !important;
+}
+
+html:not(.dark) [class*="text-slate-4"],
+html:not(.dark) [class*="text-slate-5"],
+html:not(.dark) [class*="text-slate-6"],
+html:not(.dark) [class*="text-slate-7"] {
+  color: var(--muted) !important;
 }
 
 * {
@@ -127,3 +180,36 @@ body {
     transform: none !important;
   }
 }
+
+/* Utility overrides so existing Tailwind classes respond to theme */
+:root {
+  --panel: #f8fafc;
+  --surface: #ffffff;
+  --border: #e6eef8;
+}
+
+html.dark {
+  --panel: #071226;
+  --surface: #071726;
+  --border: rgba(255,255,255,0.06);
+}
+
+/* Background utilities (broad match for built classes like bg-white and bg-white/95) */
+[class*="bg-white"] {
+  background-color: var(--surface) !important;
+}
+[class*="bg-gray-50"] {
+  background-color: var(--panel) !important;
+}
+
+/* Border utilities */
+[class*="border-slate-"], [class*="border-gray-"] {
+  border-color: var(--border) !important;
+}
+
+/* Text utilities for slate/gray darker text */
+.text-slate-900, [class*="text-slate-"], [class*="text-gray-"] {
+  color: var(--text) !important;
+}
+
+/* Keep `text-white` for high-contrast elements (buttons on colored backgrounds) */

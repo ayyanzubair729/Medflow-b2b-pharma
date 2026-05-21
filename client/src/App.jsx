@@ -37,6 +37,7 @@ import AdminProfile from "./pages/admin/AdminProfile.jsx";
 import AdminSettings from "./pages/admin/AdminSettings.jsx";
 import AdminNotifications from "./pages/admin/AdminNotifications.jsx";
 import ChatBot from "./components/ui/ChatBot.jsx";
+import ThemeToggle from "./components/ui/ThemeToggle.jsx";
 
 function App() {
   return (
@@ -97,6 +98,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
+      <ThemeToggle />
       <ChatBot />
     </>
   );
